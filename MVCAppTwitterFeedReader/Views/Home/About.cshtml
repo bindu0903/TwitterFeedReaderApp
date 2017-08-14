@@ -1,0 +1,43 @@
+﻿@{
+    ViewBag.Title = "About";
+}
+<h2>@ViewBag.Title.</h2>
+<h3>@ViewBag.Message</h3>
+
+<script type="text/javascript">
+function renderTweet(item) {
+        importanceColor = getImportanceColor(item.NumberOfFollowers);
+        return '<div class="tweet" id="' + item.ID + '">' + '<strong><a href="' + urlBase + item.Username + '" style="color:' + importanceColor + '">' + '<img src="' + item.ProfileImageURL + '" class="ProfileImg" alt="Usr image" />' + item.Username + ' </a> </strong><span class="text">' + ' ' + item.Text +
+' </span><span class="created_at"> <br /><a href="' + urlBase + '#!/' + item.Username + '/status/' + item.ID + '">' + item.Timestamp.toString() + '</span> </div>';
+    }
+
+    function getImportanceColor(number) {
+        rgb = 255 - Math.floor(16 * (Math.log(number + 1) + 1));
+        return 'rgb(' + rgb + ', 0, 0)';
+    }
+
+
+ $(document).ready(function () {
+        $("input:text").focus(function () //focus method will execute when input element got focus
+        {
+            $("input:text").css("background-color", "#FAD88C"); //when input element got focus backcolor will white
+            $("input:text").val('');
+        });
+        $("input:text").blur(function () //when input element lost its focus blur event will raise
+        {
+            $("input:text").css("background-color", "#F2F9FF"); // css will change backcolor of textboxes
+        });
+    });
+</script>
+<div id="Tweets">
+    <div id="TweetsHeader">
+        <strong>Tweets</strong>
+        <img id="LoadingImage" src="@Url.Content("~/Content/images/Loading.gif")" alt="Retrieving tweets..." />
+    </div>
+    <div id="TweetsBody">
+    </div>
+    <div id="TweetsFooter">
+        <img src="@Url.Content("~/Content/images/twitter-icon.png")" height="30px" width="30px" alt="Twitter icon" />
+        <strong><a href="http://www.twitter.com">Twitter</a></strong>
+    </div>
+</div>
