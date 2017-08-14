@@ -1,4 +1,4 @@
-﻿@{
+@{
     ViewBag.Title = "Home Page";
 }
 <!DOCTYPE html>
@@ -9,86 +9,42 @@
 <head>
     <meta name="viewport" content="width =device-width" />
     <title>Index</title>
-    @*<style>
-                        a         {
-                                text-decoration: none;
-                                color: inherit;
-                           
-                }
-
-                            a:hover             {
-                                    text-decoration: underline;
-                               
-                }
-
-                        img         {
-                                border: 0px;
-                                vertical-align: top;
-                           
-                }
-
-                        .tweet         {
-                                margin: 10px;
-                                border-bottom:1px solid #808080;
-                           
-                }
-
-                            .tweet div.picture             {
-                                    float: left;
-                               
-                }
-
-                            .tweet div.info             {
-                                    float: left;
-                                    margin-left: 5px;
-                               
-                }
-
-                                .tweet div.info a.text                 {
-                                        color:#f64fd4;
-                                   
-                }
-
-                            .tweet div.action a             {
-                                    color:#00a5ff;
-                               
-                }
-
-                            .tweet div.clear             {
-                                   clear:both;
-                               
-                }
-        /* END EXTER
-    </style>*@
+    <script type="text/javascript">
+        function timedRefresh(timeoutPeriod) {
+            setTimeout(function() {
+                location.reload(true);
+            }, timeoutPeriod);
+        }
+    </script>
     <style>
-           .tweets { background: #f1f1f1; display: block; }
+        .tweets { background: #f1f1f1; display: block; }
 
- .tweet { display: block; padding: 10px; background-color:lightblue }
+     .tweet { display: block; padding: 10px; background-color:lightblue }
 
- .tweets .alt { background: #fff; }
+     .tweets .alt { background: #fff; }
 
- .tweet-banner { color: #fff; text-align: center; }
- .tweet-banner a { color: #fff; }
+     .tweet-banner { color: #fff; text-align: center; }
+     .tweet-banner a { color: #fff; }
 
- .tweet-banner img { border-radius: 50%; margin: 0 auto; }
+     .tweet-banner img { border-radius: 50%; margin: 0 auto; }
 
- .tweet-banner .shadow {
-    padding: 50px;
-    content: "";
-    position: relative;
-    width: 100%;
-    bottom: 0;
-    height: 100%;
-    background: -moz-linear-gradient(top, transparent 0%, rgba(0, 0, 0, 0.3) 100%);
-    background: -webkit-linear-gradient(top, transparent 0%, rgba(0, 0, 0, 0.3) 100%);
-    background: linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, 0.3) 100%);
-    filter: progid: DXImageTransform.Microsoft.gradient( startColorstr='#00000000', endColorstr='#a6000000', GradientType=0);
- }
+     .tweet-banner .shadow {
+        padding: 50px;
+        content: "";
+        position: relative;
+        width: 100%;
+        bottom: 0;
+        height: 100%;
+        background: -moz-linear-gradient(top, transparent 0%, rgba(0, 0, 0, 0.3) 100%);
+        background: -webkit-linear-gradient(top, transparent 0%, rgba(0, 0, 0, 0.3) 100%);
+        background: linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, 0.3) 100%);
+        filter: progid: DXImageTransform.Microsoft.gradient( startColorstr='#00000000', endColorstr='#a6000000', GradientType=0);
+     }
 
- span.pretty-date { font-size: 0.6em; }
-    </style>
+     span.pretty-date { font-size: 0.6em; }
+        </style>
 </head>
-<body>
+<body onload="JavaScript:timedRefresh(5000);">
     <div>
         @*@using (Html.BeginForm())
         {
