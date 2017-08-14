@@ -132,15 +132,15 @@
     /// <returns>string to output as HTML</returns>
     public static string FormatAsHtml(Tweet tweet)
     {
-        var tweetText = ReplaceHashTagsAndUsernamesWithUrls(tweet.UserName);
-        foreach (TwitterUrls url in tweet.Urls)
-        {
-            tweetText = ReplaceFlatUrlWithHTMLUrl(tweetText, url.Url);
-        }
-        foreach (TwitterMedia mediaEntity in tweet.Media)
-        {
-            tweetText = ReplaceMediaUrlWithImgTag(tweetText, mediaEntity);
-        }
+        //var tweetText = ReplaceHashTagsAndUsernamesWithUrls(tweet.UserName);
+        //foreach (TwitterUrls url in tweet.Urls)
+        //{
+        //    tweetText = ReplaceFlatUrlWithHTMLUrl(tweetText, url.Url);
+        //}
+        //foreach (TwitterMedia mediaEntity in tweet.Media)
+        //{
+        //    tweetText = ReplaceMediaUrlWithImgTag(tweetText, mediaEntity);
+        //}
         return tweet.Text;
     }
 
