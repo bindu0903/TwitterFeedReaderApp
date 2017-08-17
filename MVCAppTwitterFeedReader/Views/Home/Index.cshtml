@@ -1,0 +1,197 @@
+﻿@{
+    ViewBag.Title = "Home Page";
+}
+<!DOCTYPE html>
+@using Utils.Twitter;
+@using Utils.Twitter.Models;
+@using System.Text.RegularExpressions;
+<html>
+<head>
+    <meta name="viewport" content="width =device-width" />
+    <title>Index</title>
+    <script type="text/javascript">
+        function timedRefresh(timeoutPeriod) {
+            setTimeout(function() {
+                location.reload(true);
+            }, timeoutPeriod);
+        }
+    </script>
+    <style>
+        .tweets { background: #f1f1f1; display: block; }
+
+     .tweet { display: block; padding: 10px; background-color:lightblue }
+
+     .tweets .alt { background: #fff; }
+
+     .tweet-banner { color: #fff; text-align: center; }
+     .tweet-banner a { color: #fff; }
+
+     .tweet-banner img { border-radius: 50%; margin: 0 auto; }
+
+     .tweet-banner .shadow {
+        padding: 50px;
+        content: "";
+        position: relative;
+        width: 100%;
+        bottom: 0;
+        height: 100%;
+        background: -moz-linear-gradient(top, transparent 0%, rgba(0, 0, 0, 0.3) 100%);
+        background: -webkit-linear-gradient(top, transparent 0%, rgba(0, 0, 0, 0.3) 100%);
+        background: linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, 0.3) 100%);
+        filter: progid: DXImageTransform.Microsoft.gradient( startColorstr='#00000000', endColorstr='#a6000000', GradientType=0);
+     }
+
+     span.pretty-date { font-size: 0.6em; }
+        </style>
+</head>
+<body onload="JavaScript:timedRefresh(5000000);">
+    <div>
+        @*@using (Html.BeginForm())
+        {
+            <label for="txtTwitterName">Twitter Name:</label> <input type="text" name="txtTwitterName" id="txtTwitterName" placeholder=”Type a twitter name” />
+            <br />
+            <input type="submit" value="Get Tweets" />
+        }*@
+       
+
+            <div>
+                @if (ViewBag.Tweets != null)
+                    {
+                        IEnumerable<Tweet> tweets = ViewBag.Tweets as IEnumerable<Tweet>;
+                        string TWITTER_DOMAIN_URL = "https://twitter.com/";
+                    <div class="tweet-banner" style="background:url('@tweets.First().ProfileBannerUrl') center / cover">
+                        <div class="shadow">
+                            <h2><a href="@(TWITTER_DOMAIN_URL + tweets.First().ScreenName)" target="_blank">@tweets.First().UserName (@@@(tweets.First().ScreenName))</a></h2>
+                            <img src="@tweets.First().ProfileImageUrl" />
+                            <h3>Latest tweets</h3>
+                        </div>
+                    </div>
+                    foreach (var tweet in tweets)
+                    {
+                        <div>
+                            <table>
+                            <tr>
+                                <td style="vertical-align: baseline;"><a href="@(TWITTER_DOMAIN_URL + tweet.ScreenName)"><img src="@tweet.ProfileImageUrl" /></a></td>
+                                <td style="padding-top:15px;" >
+                                    <a href="@(TWITTER_DOMAIN_URL + tweet.ScreenName)" target="_blank">@tweet.ScreenName</a><span style="margin-left: 5px;">@@@(tweet.ScreenName)</span><span class="pretty-date" style="margin-left: 5px;">@tweet.CreatedAt</span> <br/>
+                                    <table>
+                                        <tr>
+                                            <td>
+                                                @Html.Raw(FormatAsHtml(tweet))
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                            </table>  
+                        </div>
+                    }
+                }
+                else
+                {
+                    <p>@Html.Raw("Tweets currently unavailable")</p>
+                }
+            </div>
+        </div>
+@functions{
+    /// <summary>
+    /// Calls the relevant methods to format a tweet as HTML
+    /// </summary>
+    /// <param name="status">The status object as a TwitterStatusMessage</param>
+    /// <returns>string to output as HTML</returns>
+    public static string FormatAsHtml(Tweet tweet)
+    {
+        var tweetText = ReplaceHashTagsAndUsernamesWithUrls(tweet.Text);
+
+        foreach (object objUrl in (object[])tweet.Urls)
+        {
+            Dictionary<string, object> urls = (Dictionary<string, object>)objUrl;
+            foreach (var url in urls)
+            {
+                tweetText = ReplaceFlatUrlWithHTMLUrl(tweetText, url.Value.ToString());
+            }
+        }
+        foreach (object mediaEntity in (object[])tweet.Media)
+        {
+            string url = string.Empty, mediaUrl = string.Empty;
+            Dictionary<string, object> objMedia = (Dictionary<string, object>)mediaEntity;
+            foreach (var media in objMedia)
+            {
+                if (media.Key == "url")
+                    url = media.Value.ToString();
+                if (media.Key == "media_url")
+                    mediaUrl = media.Value.ToString();
+            }
+            tweetText = ReplaceMediaUrlWithImgTag(tweetText, url, mediaUrl);
+        }
+        return tweetText;
+    }
+
+    /// <summary>
+    /// Calls the methods for replacing hash tag text and username text with Urls to the hashtag or user on twitter.
+    /// </summary>
+    /// <param name="tweetText">Twitter status text</param>
+    /// <param name="domainUrl">The twitter domain url in case it changes at a later date</param>
+    /// <returns>The tweet text with the new formatted text in it</returns>
+    public static string ReplaceHashTagsAndUsernamesWithUrls(string tweetText, string domainUrl = "https://twitter.com")
+    {
+        string newText = ReplaceHashtagsWithUrls(tweetText);
+        newText = ReplaceTwitterUsernamesWithUrls(newText, domainUrl);
+        return newText;
+    }
+
+    /// <summary>
+    /// Looks for patterns in the tweet text which look like usernames and replaces them with some HTML markup for linking to the user
+    /// </summary>
+    /// <param name="tweetText">Twitter status text</param>
+    /// <param name="domainUrl">The twitter domain url in case it changes at a later date</param>
+    /// <returns>The tweet text with the new formatted text in it</returns>
+    public static string ReplaceTwitterUsernamesWithUrls(string tweetText, string domainUrl = "https://twitter.com")
+    {
+        return Regex.Replace(tweetText, @"@(\w+)", delegate (Match match)
+        {
+            string userName = match.ToString().Trim();
+            return String.Format("<a href=\"{0}/{1}\" target=\"_blank\">{2}</a>", domainUrl.TrimEnd('/'), userName.Substring(1), userName);
+        });
+    }
+
+    /// <summary>
+    /// Looks for patterns in the tweet text which look like hashtags and replaces them with some HTML markup for linking to the hashtag
+    /// </summary>
+    /// <param name="tweetText">Twitter status text</param>
+    /// <returns>The tweet text with the new formatted text in it</returns>
+    public static string ReplaceHashtagsWithUrls(string tweetText)
+    {
+        return Regex.Replace(tweetText, @"#(\w+)", delegate (Match match)
+        {
+            string hashTag = match.ToString().Trim().Substring(1);
+            return String.Format("<a href=\"https://twitter.com/hashtag/{0}?src=hash\" target=\"_blank\">#{0}</a>", hashTag);
+        });
+    }
+
+    /// <summary>
+    /// Looks a url in the tweet and replaces it with HTML markup for the url
+    /// </summary>
+    /// <param name="tweetText">Twitter status text</param>
+    /// <param name="urlText">The Url to replace</param>
+    /// <param name="newWindow">Decide whether to open in a new window or not</param>
+    /// <returns>The tweet text with the new formatted text in it</returns>
+    public static string ReplaceFlatUrlWithHTMLUrl(string tweetText, string urlText, bool newWindow = true)
+    {
+        return tweetText.Replace(urlText, String.Format("<a href=\"{0}\" {1}>{0}</a>", urlText, newWindow ? "target=\"_blank\"" : ""));
+    }
+
+    /// <summary>
+    /// Looks for images in a tweet and replaces the url text in the tweet text with the markup for displaying the image
+    /// </summary>
+    /// <param name="tweetText">Twitter status text</param>
+    /// <param name="mediaEntity">Media item containing the details of the image</param>
+    /// <param name="newWindow">Decide whether to open in a new window or not</param>
+    /// <returns>The tweet text with the new formatted text in it</returns>
+    public static string ReplaceMediaUrlWithImgTag(string tweetText, string url, string mediaUrl, bool newWindow = true)
+    {
+        return tweetText.Replace(url, String.Format("<span><a href=\"{0}\" {1}></span><br/><span style=\"display: inline-block;position: relative;top: 25px;bottom: 25px;\"><img src=\"{0}\" width=\"400\" height=\"400\" /></a></span>", mediaUrl, newWindow ? "target=\"_blank\"" : ""));
+    }
+    }
+</body>
+</html>
